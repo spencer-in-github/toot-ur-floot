@@ -1,0 +1,101 @@
+{
+    "11": {
+        "id": "11",
+        "message": "Welcome to Flutterer! I am Stephan.",
+        "timestamp": "Tue Nov 19 01:50:50 2019",
+        "username": "Stephan Sharkov",
+        "liked_by": [
+            "Jonathan Kula",
+            "Avi Gupta",
+            "Ryan Guan"
+        ],
+        "comments": []
+    },
+    "13": {
+        "id": "13",
+        "message": "Hello world! I am Avi.",
+        "timestamp": "Tue Nov 19 01:55:11 2019",
+        "username": "Avi Gupta",
+        "liked_by": [
+            "Jonathan Kula",
+            "Stephan Sharkov",
+            "Sophie Andrews",
+            "Ryan Guan",
+            "Avi Gupta"
+        ],
+        "comments": [
+            {
+                "id": "97313487-4275-45f1-98f9-072c4f1aea15",
+                "message": "Want to go grab dinner at Lag? ",
+                "username": "Ryan Guan"
+            },
+            {
+                "id": "0f5c8d98-8d4a-4b7f-a45d-7891addfc335",
+                "message": "No",
+                "username": "Avi Gupta"
+            },
+            {
+                "id": "77d0ea3c-83e8-471b-a066-dc9be4483862",
+                "message": "Fine",
+                "username": "Ryan Guan"
+            },
+            {
+                "id": "3bc6d69a-4fc1-4ff1-a8a0-bcabf7c78ae4",
+                "message": "I'll get dinner with you",
+                "username": "Jonathan Kula"
+            },
+            {
+                "id": "85c3e021-1643-4191-8f0d-a48c5bc7fc00",
+                "message": "Thank you Jonathan",
+                "username": "Ryan Guan"
+            }
+        ]
+    },
+    "cace4adc-34b9-49dd-90cd-32f552b7b72f": {
+        "id": "cace4adc-34b9-49dd-90cd-32f552b7b72f",
+        "message": "Greetings, I am Ryan",
+        "timestamp": "Tue Nov 19 20:08:35 2019",
+        "username": "Ryan Guan",
+        "liked_by": [
+            "Avi Gupta",
+            "Stephan Sharkov",
+            "Sophie Andrews",
+            "Jonathan Kula"
+        ],
+        "comments": [
+            {
+                "id": "8b03dc48-c0cd-405f-b4d3-a8c9fda4f9a0",
+                "message": "Hi Ryan!",
+                "username": "Sophie Andrews"
+            }
+        ]
+    },
+    "5e074add-628d-4cf1-af37-d090f485df67": {
+        "id": "5e074add-628d-4cf1-af37-d090f485df67",
+        "message": "Floot floot!",
+        "timestamp": "Wed Nov 20 06:08:19 2019",
+        "username": "Sophie Andrews",
+        "liked_by": [
+            "Sophie Andrews",
+            "Jonathan Kula"
+        ],
+        "comments": [
+            {
+                "id": "86bf5ef6-7ca3-42cc-8347-5f277fc13778",
+                "message": "Nice",
+                "username": "Ryan Guan"
+            }
+        ]
+    },
+    "fb62f748-87d4-4f6f-b8b6-d16c76d9ad0e": {
+        "id": "fb62f748-87d4-4f6f-b8b6-d16c76d9ad0e",
+        "message": "I'm Jonathan!",
+        "timestamp": "Thu Nov 21 10:54:32 2019",
+        "username": "Jonathan Kula",
+        "liked_by": [
+            "Avi Gupta",
+            "Sophie Andrews"
+        ],
+        "comments": []
+    }
+}
