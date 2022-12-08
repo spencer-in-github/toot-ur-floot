@@ -5,6 +5,25 @@
  */
 "use strict";
 
+//    function ProfilePicture(name, imageUrl) {
+//        let image = document.createElement("img");
+//        image.src = imageUrl;
+//        image.className = "user-photo";
+//        image.alt = "User Profile Image for " + name;
+//        return image;
+//    }
+
+//    function Floot(floot, loggedInUser, actions) {
+//        let card = document.createElement("div");
+//        card.classList.add("card");
+//        card.classList.add("floot-card");
+//        card.appendChild(ProfilePicture(floot.username,
+//                                        "img/" + floot.username + ".jpg"));
+//        card.appendChild(FlootContent(floot.username, floot.message));
+//        card.appendChild(LikeCommentCount(floot, loggedInUser, toggleLike));
+//        return card;
+//    }
+
 // Specify a list of valid users. (Extension opportunity: You can create an
 // API route that lets users sign up, and then here, you can load a list of
 // registered users.)
@@ -15,6 +34,7 @@ const USERS = [
     "Jonathan Kula",
     "Avi Gupta",
 ];
+// let div = document.getElementById("primary-container");
 
 /**
  * Function: Flutterer
@@ -23,6 +43,18 @@ const USERS = [
  */
 function Flutterer() {
     // TODO: Implement this function, starting in Milestone 2
+
+    let req = AsyncRequest("url");
+    req.addParams({json: true});
+    req.setSuccessHandler(
+        function(response) {
+            let payload = response.getPayload();
+            let info = JSON.parse(payload);
+        });
+    req.send();
+    document.body.appendChild(MainComponent(USERS[0], info, {}));
+
+
 }
 
 /**
@@ -46,8 +78,20 @@ function Flutterer() {
  *       <NewsFeed />
  *   </div>
  */
+
+
 function MainComponent(selectedUser, floots, actions) {
     // TODO: Implement this component in Milestone 2
+    // let main_div = document.createElement("primary-container");
+    let main_div = document.createElement("div");
+    main_div.classList.add("primary-container");
+
+    main_div.appendChild(Sidebar(USERS, floots, actions));
+
+    main_div.appendChild(NewsFeed(selectedUser, floots, actions));
+
+    return main_div;
+    
 }
 
 /**
@@ -60,6 +104,7 @@ function MainComponent(selectedUser, floots, actions) {
  * provides much more useful information), but students may find this handy for
  * doing quick debugging.
  */
+
 (() => {
     function log_info(msg, ...extraArgs) {
         console.info("%c" + msg, "color: #8621eb", ...extraArgs);

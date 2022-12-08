@@ -43,8 +43,13 @@ def get_floots():
     not straightforward to send an arbitrary object, like a Floot object, over
     the internet.) You may find the Floot to_dictionary() method helpful.
     """
-    # TODO: delete the following line, and replace it with your own implementation
-    return HTTPError(501, "api.get_floots not implemented yet")
+    floots = []
+    floots_objects_list = db.get_floots()
+    for obj_floot in floots_objects_list:
+        dict_floot = Floot.to_dictionary(obj_floot)
+        # print(floot_dict)
+        floots.append(dict_floot)
+    return floots
 
 # GET /api/floots/{floot_id}
 def get_floot(floot_id):
@@ -54,8 +59,11 @@ def get_floot(floot_id):
     You should return the floot as a dictionary, not as a Floot object (see
     Floot.to_dictionary()).
     """
-    # TODO: delete the following line, and replace it with your own implementation
-    return HTTPError(501, "api.get_floot not implemented yet")
+    if db.has_floot(floot_id) is True:
+        current_floot = db.get_floot_by_id(floot_id)
+        return Floot.to_dictionary(current_floot)
+    else:
+        return HTTPError(404, "no floot with ID " + floot_id + " could be found")
 
 # POST /api/floots
 def create_floot(request_body):
@@ -76,8 +84,16 @@ def create_floot(request_body):
     When you've saved the new floot to the database, return the floot as a
     dictionary (see Floot.to_dictionary).
     """
-    # TODO: delete the following line, and replace it with your own implementation
-    return HTTPError(501, "api.create_floot not implemented yet")
+    if ("message" in request_body or request_body["message"] == ""):
+        return HTTPError(400, "empty")
+    if (request_body["username"] == ""):
+        return HTTPError(400, "empty")
+    else:
+        new_floot = Floot(message=request_body["message"],
+                          username=request_body["username"])
+        db.save_floot(new_floot)
+        floot_dict = Floot.to_dictionary(new_floot)
+        return floot_dict
 
 # POST /api/floots/{floot_id}/delete
 def delete_floot(floot_id, request_body):
@@ -99,8 +115,7 @@ def delete_floot(floot_id, request_body):
     * If everything worked fine and the floot was successfully deleted, this
       function should return "OK".
     """
-    # TODO: delete the following line, and replace it with your own implementation
-    return HTTPError(501, "api.delete_floot not implemented yet")
+    delete_floot_by_id(floot_id)
 
 # GET /api/floot/{floot_id}/comments
 def get_comments(floot_id):
