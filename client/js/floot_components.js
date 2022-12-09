@@ -183,8 +183,6 @@ function Floot(flootInfo, selectedUser, showDelete, actions) {
     function handleCardClick() {
         // TODO: Milestone 7: Call one of your functions in `actions` to open a
         // modal showing this floot's comments.
-        console.log("card clicked");
-        //let modal = FlootModal(flootInfo, selectedUser, actions);
         actions.openFlootModal(flootInfo, selectedUser, actions);
     }
 
@@ -207,9 +205,10 @@ function Floot(flootInfo, selectedUser, showDelete, actions) {
         // will also be given to the card's click handler, so handleCardClick()
         // will be called and the modal will be opened.)
         e.stopPropagation();
-
+        let isLiked = flootInfo.liked_by.includes(selectedUser);
         // TODO: If you are implementing the "like button" extension, call one
         // of your functions in `actions` to like or un-like this floot.
+        actions.togglelikeFloot(flootInfo.id, selectedUser, isLiked);
     }
 
     return card;
@@ -277,12 +276,22 @@ function FlootContent(name, message) {
  *   </div>
  */
 function LikeCommentCount(flootInfo, selectedUser, onLike) {
+    console.log("creating like counts");
+
     let container = document.createElement("div");
     container.classList.add("comment-like-count");
 
     // TODO: if you are implementing the like button extension, append a
     // LikeCount component here. You should also add a click listener to the
     // LikeCount node, calling onLike() when the element is clicked.
+    let numLiked = Object.keys(flootInfo.liked_by).length
+    let isLiked = flootInfo.liked_by.includes(selectedUser);
+    
+    let likeNode = document.createElement("div");
+    likeNode.classList.add("like-count");
+    likeNode.appendChild(LikeCount(numLiked, isLiked));
+    likeNode.addEventListener("click", onLike);
+    container.appendChild(likeNode);
 
     // We haven't learned this in class, but you can do
     // Object.keys(someAggregate) to get an array of keys in that aggregate,

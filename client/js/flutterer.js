@@ -5,25 +5,6 @@
  */
 "use strict";
 
-//    function ProfilePicture(name, imageUrl) {
-//        let image = document.createElement("img");
-//        image.src = imageUrl;
-//        image.className = "user-photo";
-//        image.alt = "User Profile Image for " + name;
-//        return image;
-//    }
-
-//    function Floot(floot, loggedInUser, actions) {
-//        let card = document.createElement("div");
-//        card.classList.add("card");
-//        card.classList.add("floot-card");
-//        card.appendChild(ProfilePicture(floot.username,
-//                                        "img/" + floot.username + ".jpg"));
-//        card.appendChild(FlootContent(floot.username, floot.message));
-//        card.appendChild(LikeCommentCount(floot, loggedInUser, toggleLike));
-//        return card;
-//    }
-
 // Specify a list of valid users. (Extension opportunity: You can create an
 // API route that lets users sign up, and then here, you can load a list of
 // registered users.)
@@ -34,7 +15,7 @@ const USERS = [
     "Jonathan Kula",
     "Avi Gupta",
 ];
-// let div = document.getElementById("primary-container");
+const URL = "http://localhost:1066/api/floots";
 
 /**
  * Function: Flutterer
@@ -46,7 +27,7 @@ function Flutterer() {
     //so you don't change back to USER[0] when doing refresh
     let current_user = USERS[0]; 
 
-    AsyncRequest("http://localhost:1066/api/floots")
+    AsyncRequest(URL)
         .setSuccessHandler(initialize)
         .send();
 
@@ -60,7 +41,8 @@ function Flutterer() {
             openFlootModal: openFlootModal,
             closeFlootModal: closeFlootModal,
             addComment: addComment,
-            deleteComment: deleteComment
+            deleteComment: deleteComment,
+            togglelikeFloot: togglelikeFloot
         };
         document.body.appendChild(MainComponent(current_user, info, actions));
 
@@ -74,7 +56,7 @@ function Flutterer() {
         }
 
         function refresh(){
-            AsyncRequest("http://localhost:1066/api/floots")
+            AsyncRequest(URL)
                 .setSuccessHandler(initialize)
                 .send();
         }
@@ -84,7 +66,7 @@ function Flutterer() {
                 document.body.removeChild(document.body.lastChild)
             }
             // request
-            AsyncRequest("http://localhost:1066/api/floots")
+            AsyncRequest(URL)
                 .setMethod("POST")
                 .setPayload(JSON.stringify({
                     username: username,
@@ -99,7 +81,7 @@ function Flutterer() {
                 document.body.removeChild(document.body.lastChild)
             }
             // request
-            let url = "http://localhost:1066/api/floots/"+flootInfo.id+"/delete"
+            let url = URL + "/" + flootInfo.id + "/delete"
             AsyncRequest(url)
                 .setMethod("POST")
                 .setPayload(JSON.stringify({
@@ -114,7 +96,7 @@ function Flutterer() {
             while (document.body.lastChild != null) {
                 document.body.removeChild(document.body.lastChild)
             }
-            AsyncRequest("http://localhost:1066/api/floots")
+            AsyncRequest(URL)
             .setSuccessHandler(addModal)
             .send();
 
@@ -127,7 +109,6 @@ function Flutterer() {
 
         function closeFlootModal(){
             console.log("close modal executed");
-            //refresh();
             while (document.body.lastChild != null) {
                 document.body.removeChild(document.body.lastChild)
             }
@@ -139,7 +120,7 @@ function Flutterer() {
                 document.body.removeChild(document.body.lastChild)
             }
             // request
-            let url = "http://localhost:1066/api/floots/"+flootInfo.id+"/comments"
+            let url = URL + "/" + flootInfo.id + "/comments"
             AsyncRequest(url)
                 .setMethod("POST")
                 .setPayload(JSON.stringify({
@@ -149,7 +130,8 @@ function Flutterer() {
                 .setSuccessHandler(refresh) //TODO: should not close the modal when comment is submitted
                 .send();
 
-            // function stayOnTheModal(){
+            // function stayOnTheModal(response){
+
             //     openFlootModal(flootInfo, current_user, actions);
             // }
         }
@@ -159,7 +141,7 @@ function Flutterer() {
                 document.body.removeChild(document.body.lastChild)
             }
             // request
-            let url = "http://localhost:1066/api/floots/"+flootId+"/comments/" + commentId + "/delete"
+            let url = URL + "/" + flootId + "/comments/" + commentId + "/delete"
             AsyncRequest(url)
                 .setMethod("POST")
                 .setPayload(JSON.stringify({
@@ -168,6 +150,26 @@ function Flutterer() {
                 .setSuccessHandler(refresh) //TODO: should not close the modal when comment is submitted
                 .send();
         }
+
+        function togglelikeFloot(flootId, selectedUser, isLiked){
+            while (document.body.lastChild != null) {
+                document.body.removeChild(document.body.lastChild)
+            }
+            let url;
+            if(!isLiked){
+                url = URL + "/" + flootId + "/like"
+            } else {
+                url = URL + "/" + flootId + "/unlike"
+            }
+            AsyncRequest(url)
+                .setMethod("POST")
+                .setPayload(JSON.stringify({
+                    username: selectedUser,
+                }))
+                .setSuccessHandler(refresh) 
+                .send();
+        }
+            
     }
 }
 
