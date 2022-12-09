@@ -85,7 +85,12 @@ function NewFlootEntry(selectedUser, actions) {
     function postFloot() {
         // TODO: Milestone 5: Call one of your functions in `actions` to post
         // this floot.
-        actions.postNewFloot(selectedUser);
+        console.log("postFloot executed.");
+
+        let message = textbox.value;
+
+        actions.postNewFloot(selectedUser, message);
+        console.log("action postNewFloot executed.");
     }
 
     return container;
@@ -178,6 +183,9 @@ function Floot(flootInfo, selectedUser, showDelete, actions) {
     function handleCardClick() {
         // TODO: Milestone 7: Call one of your functions in `actions` to open a
         // modal showing this floot's comments.
+        console.log("card clicked");
+        //let modal = FlootModal(flootInfo, selectedUser, actions);
+        actions.openFlootModal(flootInfo, selectedUser, actions);
     }
 
     /**
@@ -186,6 +194,8 @@ function Floot(flootInfo, selectedUser, showDelete, actions) {
     function deleteFloot() {
         // TODO: Milestone 6: Call one of your functions in `actions` to delete
         // this floot.
+        console.log("trying to delete floot");
+        actions.deleteFloot(flootInfo);
     }
 
     /**

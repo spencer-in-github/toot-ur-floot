@@ -75,6 +75,7 @@ function Comment(id, name, message, showDelete, flootId, actions) {
     function deleteComment() {
         // TODO: Milestone 8: Use one of your functions in `actions` to delete
         // this comment.
+        actions.deleteComment(flootId, id);
     }
 
     return container;
@@ -152,6 +153,9 @@ function NewCommentEntry(floot, actions) {
     function submitComment() {
         // TODO: Milestone 8: Use one of your functions in `actions` to post
         // this new comment.
+        console.log("submit comment");
+        let comment = textbox.value;
+        actions.addComment(floot, comment);
     }
 
     return container;

@@ -66,6 +66,9 @@ function FlootModal(floot, selectedUser, actions) {
     closeBtnContainer.appendChild(closeBtn);
     // TODO: Milestone 7: Call one of your functions in `actions` to close the
     // modal when closeBtn is clicked.
+    closeBtn.addEventListener("click", function(e){
+        actions.closeFlootModal();
+    })
 
     // Put content and close button inside modal
     let modalContent = document.createElement("div");
@@ -84,6 +87,8 @@ function FlootModal(floot, selectedUser, actions) {
         // modal will close if you click *anything* inside it.)
         if (e.target === modal) {
             // TODO: Milestone 7: Close the modal.
+            console.log("clicked on modal");
+            actions.closeFlootModal(); 
         }
     });
 

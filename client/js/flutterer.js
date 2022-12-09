@@ -42,7 +42,10 @@ const USERS = [
  * Flutterer's entry point
  */
 function Flutterer() {
-    // TODO: Implement this function, starting in Milestone 2   
+    //A placeholder for the current selected user, 
+    //so you don't change back to USER[0] when doing refresh
+    let current_user = USERS[0]; 
+
     AsyncRequest("http://localhost:1066/api/floots")
         .setSuccessHandler(initialize)
         .send();
@@ -51,30 +54,119 @@ function Flutterer() {
         let payload = response.getPayload();
         let info = JSON.parse(payload);
         let actions = {
-            changeSelectedUser,
-            postNewFloot
+            changeSelectedUser: changeSelectedUser,
+            postNewFloot: postNewFloot,
+            deleteFloot: deleteFloot,
+            openFlootModal: openFlootModal,
+            closeFlootModal: closeFlootModal,
+            addComment: addComment,
+            deleteComment: deleteComment
         };
-        document.body.appendChild(MainComponent(USERS[0], info, actions));
+        document.body.appendChild(MainComponent(current_user, info, actions));
 
         function changeSelectedUser(username) {
             // TODO: selected username color on sidebar is not showing as blue
             while (document.body.lastChild != null) {
                 document.body.removeChild(document.body.lastChild)
             }
+            current_user = username;
             document.body.appendChild(MainComponent(username, info, actions));
         }
+
+        function refresh(){
+            AsyncRequest("http://localhost:1066/api/floots")
+                .setSuccessHandler(initialize)
+                .send();
+        }
     
-        function postNewFloot(username) {
+        function postNewFloot(username, message) {
             while (document.body.lastChild != null) {
                 document.body.removeChild(document.body.lastChild)
             }
             // request
             AsyncRequest("http://localhost:1066/api/floots")
                 .setMethod("POST")
-                .setSuccessHandler(function(response){
-                    console.log("POST worked!")
-                })
-            //document.body.appendChild(MainComponent(username, info, actions));
+                .setPayload(JSON.stringify({
+                    username: username,
+                    message: message
+                }))
+                .setSuccessHandler(refresh)
+                .send()
+        }
+
+        function deleteFloot(flootInfo){
+            while (document.body.lastChild != null) {
+                document.body.removeChild(document.body.lastChild)
+            }
+            // request
+            let url = "http://localhost:1066/api/floots/"+flootInfo.id+"/delete"
+            AsyncRequest(url)
+                .setMethod("POST")
+                .setPayload(JSON.stringify({
+                    username: flootInfo.username
+                }))
+                .setSuccessHandler(refresh)
+                .send();
+        }
+
+        function openFlootModal(flootInfo, selectedUser, actions){
+            let modal = FlootModal(flootInfo, selectedUser, actions);
+            while (document.body.lastChild != null) {
+                document.body.removeChild(document.body.lastChild)
+            }
+            AsyncRequest("http://localhost:1066/api/floots")
+            .setSuccessHandler(addModal)
+            .send();
+
+            function addModal(response){
+                let payload = response.getPayload();
+                let info = JSON.parse(payload);
+                document.body.appendChild(MainComponent(current_user, info, actions, modal));
+            }
+        }
+
+        function closeFlootModal(){
+            console.log("close modal executed");
+            //refresh();
+            while (document.body.lastChild != null) {
+                document.body.removeChild(document.body.lastChild)
+            }
+            document.body.appendChild(MainComponent(current_user, info, actions));
+        }
+
+        function addComment(flootInfo, comment){
+            while (document.body.lastChild != null) {
+                document.body.removeChild(document.body.lastChild)
+            }
+            // request
+            let url = "http://localhost:1066/api/floots/"+flootInfo.id+"/comments"
+            AsyncRequest(url)
+                .setMethod("POST")
+                .setPayload(JSON.stringify({
+                    username: flootInfo.username,
+                    message: comment
+                }))
+                .setSuccessHandler(refresh) //TODO: should not close the modal when comment is submitted
+                .send();
+
+            // function stayOnTheModal(){
+            //     openFlootModal(flootInfo, current_user, actions);
+            // }
+        }
+
+        function deleteComment(flootId, commentId){
+            while (document.body.lastChild != null) {
+                document.body.removeChild(document.body.lastChild)
+            }
+            // request
+            let url = "http://localhost:1066/api/floots/"+flootId+"/comments/" + commentId + "/delete"
+            AsyncRequest(url)
+                .setMethod("POST")
+                .setPayload(JSON.stringify({
+                    username: current_user,
+                }))
+                .setSuccessHandler(refresh) //TODO: should not close the modal when comment is submitted
+                .send();
         }
     }
 }
@@ -102,7 +194,7 @@ function Flutterer() {
  */
 
 
-function MainComponent(selectedUser, floots, actions) {
+function MainComponent(selectedUser, floots, actions, modal = null) {
     // TODO: Implement this component in Milestone 2
     let main_div = document.createElement("div");
     main_div.classList.add("primary-container");
@@ -110,7 +202,9 @@ function MainComponent(selectedUser, floots, actions) {
     console.log("floots when initializing MainComponent, ", floots);
     main_div.appendChild(Sidebar(USERS, floots, actions));
     main_div.appendChild(NewsFeed(selectedUser, floots, actions));
-
+    if (modal != null){
+        main_div.appendChild(modal);
+    }
     return main_div;
 }
 
