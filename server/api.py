@@ -12,6 +12,7 @@ CLIENT_SRC_DIR = os.path.abspath(os.path.join(SERVER_SRC_DIR, "..", "client"))
 
 db = Database()
 
+
 # GET /
 def serve_file(path):
     """
@@ -33,6 +34,7 @@ def serve_file(path):
         # (e.g. a .html file is probably text/html).
         return Response(f.read(), content_type=mimetypes.guess_type(target_file_path)[0])
 
+
 # GET /api/floots
 def get_floots():
     """
@@ -51,6 +53,7 @@ def get_floots():
         floots.append(dict_floot)
     return floots
 
+
 # GET /api/floots/{floot_id}
 def get_floot(floot_id):
     """
@@ -64,6 +67,7 @@ def get_floot(floot_id):
         return Floot.to_dictionary(current_floot)
     else:
         return HTTPError(404, "no floot with ID " + floot_id + " could be found")
+
 
 # POST /api/floots
 def create_floot(request_body):
@@ -84,16 +88,17 @@ def create_floot(request_body):
     When you've saved the new floot to the database, return the floot as a
     dictionary (see Floot.to_dictionary).
     """
-    if ("message" in request_body or request_body["message"] == ""):
-        return HTTPError(400, "empty")
-    if (request_body["username"] == ""):
-        return HTTPError(400, "empty")
+    if ("message" not in request_body.keys() or request_body["message"] == ""):
+        return HTTPError(400, "Oops! Empty floot!")
+    if ("username" not in request_body.keys() or request_body["username"] == ""):
+        return HTTPError(400, "Oops! No user login!")
     else:
         new_floot = Floot(message=request_body["message"],
                           username=request_body["username"])
         db.save_floot(new_floot)
         floot_dict = Floot.to_dictionary(new_floot)
         return floot_dict
+
 
 # POST /api/floots/{floot_id}/delete
 def delete_floot(floot_id, request_body):
@@ -115,7 +120,18 @@ def delete_floot(floot_id, request_body):
     * If everything worked fine and the floot was successfully deleted, this
       function should return "OK".
     """
-    delete_floot_by_id(floot_id)
+    if db.has_floot(floot_id):
+        if "username" not in request_body.keys() or request_body["username"] == "":
+            return HTTPError(400, "Oops! No user login!")
+        floot_to_delete = db.get_floot_by_id(floot_id)
+        if floot_to_delete.get_username() != request_body["username"]:
+            return HTTPError(401, "Rude! Trying to delete other user's floot!")
+        else:
+            db.delete_floot_by_id(floot_id)
+            return "OK"
+    else:
+        return HTTPError(404, "Weird! That floot doesn't exist!")
+
 
 # GET /api/floot/{floot_id}/comments
 def get_comments(floot_id):
@@ -124,8 +140,19 @@ def get_comments(floot_id):
     return a list of dictionaries, not a list of FlootComment objects.) If
     floot_id is invalid, return an HTTPError with status 404.
     """
-    # TODO: delete the following line, and replace it with your own implementation
-    return HTTPError(501, "api.get_comments not implemented yet")
+    # 0. check if the id is valid
+    if db.has_floot(floot_id):
+        # 1. get the floot object with floot_id from DB
+        floot = db.get_floot_by_id(floot_id)
+        # 2. get the comments attribute of that floot object
+        comments_lst = floot.get_comments()
+        comment_dict_lst = [FlootCommentObj.to_dictionary() for FlootCommentObj in comments_lst]
+        return comment_dict_lst
+    else:
+        return HTTPError(404, "Weird! That floot doesn't exist!")
+
+
+
 
 # POST /api/floots/{floot_id}/comments
 def create_comment(floot_id, request_body):
@@ -140,8 +167,18 @@ def create_comment(floot_id, request_body):
     status 400. Otherwise, if the comment was created successfully, returns the
     new comment as a dictionary (see FlootComment.to_dictionary()).
     """
-    # TODO: delete the following line, and replace it with your own implementation
-    return HTTPError(501, "api.create_comment not implemented yet")
+    if db.has_floot(floot_id):
+        if "message" not in request_body.keys() or request_body["message"] == "":
+            return HTTPError(400, "Oops! Empty comment!")
+        if "username" not in request_body.keys() or request_body["username"] == "":
+            return HTTPError(400, "Oops! No user login!")
+        comment = FlootComment(message=request_body["message"],
+                               author=request_body["username"])
+        floot = db.get_floot_by_id(floot_id)
+        floot.create_comment(comment)
+        return comment.to_dictionary()
+    else:
+        return HTTPError(404, "Weird! That floot doesn't exist!")
 
 # POST /api/floots/{floot_id}/comments/{comment_id}/delete
 def delete_comment(floot_id, comment_id, request_body):
@@ -163,8 +200,27 @@ def delete_comment(floot_id, comment_id, request_body):
       status 401.
     * Otherwise, if everything works successfully, return "OK".
     """
-    # TODO: delete the following line, and replace it with your own implementation
-    return HTTPError(501, "api.delete_comment not implemented yet")
+    if db.has_floot(floot_id):
+        # 1. get the floot obj
+        floot = db.get_floot_by_id(floot_id)
+        # 2. check if comment is in the floot object
+        # 2.1 get the comment list from the floot
+        comment_lst = floot.get_comments()
+        comment_found = False
+        for comment in comment_lst:
+            if comment_id == comment.get_id():
+                comment_found = True
+                if "username" not in request_body.keys():
+                    return HTTPError(400, "Oops! No user login!")
+                elif comment.get_author() == request_body["username"]:
+                    floot.delete_comment(comment, username = request_body["username"])
+                    return "OK"
+                else:
+                    return HTTPError(401, "Rude! Trying to delete other users' comment!")
+        if comment_found is False:
+            return HTTPError(404, "Weird! That comment doesn't exist!")
+    else:
+        return HTTPError(404, "Weird! That floot doesn't exist!")
 
 # POST /api/floots/{floot_id}/like
 def like_floot(floot_id, request_body):
@@ -183,9 +239,16 @@ def like_floot(floot_id, request_body):
     HTTPError with status 404, and if "username" is missing from request_body,
     return an HTTPError with status 401.
     """
-    # TODO: if you're trying to do this extension, delete the following line,
-    # and replace it with your own implementation
-    return HTTPError(501, "api.like_floot not implemented yet")
+    if db.has_floot(floot_id):
+        if "username" not in request_body.keys():
+            return HTTPError(401, "Oops! No user login!")
+        else:
+            floot = db.get_floot_by_id(floot_id)
+            floot.set_liked(request_body["username"], True)
+            return "OK"
+    else:
+        return HTTPError(404, "Weird! That floot doesn't exist!")
+
 
 # POST /api/floots/{floot_id}/unlike
 def unlike_floot(floot_id, request_body):
@@ -204,9 +267,17 @@ def unlike_floot(floot_id, request_body):
     return an HTTPError with status 404, and if "username" is missing from
     request_body, return an HTTPError with status 401.
     """
-    # TODO: if you're trying to do this extension, delete the following line,
-    # and replace it with your own implementation
-    return HTTPError(501, "api.unlike_floot not implemented yet")
+    if db.has_floot(floot_id):
+        if "username" not in request_body.keys():
+            return HTTPError(401, "Oops! No user login!")
+        else:
+            floot = db.get_floot_by_id(floot_id)
+            if request_body["username"] in floot.get_liked_by():
+                floot.set_liked(request_body["username"], False)
+                return "OK"
+    else:
+        return HTTPError(404, "Weird! That floot doesn't exist!")
+
 
 # This specifies which functions should be called given a particular incoming
 # path. You don't need to understand or change this, unless you're doing an

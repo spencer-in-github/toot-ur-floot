@@ -44,15 +44,18 @@ const USERS = [
 function Flutterer() {
     // TODO: Implement this function, starting in Milestone 2
 
-    let req = AsyncRequest("url");
-    req.addParams({json: true});
+    let req = AsyncRequest("GET http://localhost:1066/api/floots");
+    //req.addParams({json: true});
     req.setSuccessHandler(
         function(response) {
             let payload = response.getPayload();
             let info = JSON.parse(payload);
+            //console.log(info);
         });
     req.send();
-    document.body.appendChild(MainComponent(USERS[0], info, {}));
+
+    //console.log(info);
+    document.body.appendChild(MainComponent(USERS[0], [], {}));
 
 
 }
@@ -82,7 +85,6 @@ function Flutterer() {
 
 function MainComponent(selectedUser, floots, actions) {
     // TODO: Implement this component in Milestone 2
-    // let main_div = document.createElement("primary-container");
     let main_div = document.createElement("div");
     main_div.classList.add("primary-container");
 
