@@ -102,6 +102,8 @@ function AccountSelector(users, selectedUser, actions) {
         function buttonClicked() {
             // TODO: Milestone 4: Call one of your functions in `actions` to
             // change the selected user.
+            console.log(actions);
+            actions.changeSelectedUser(username);
         }
         button.addEventListener("click", buttonClicked);
     }

@@ -42,22 +42,41 @@ const USERS = [
  * Flutterer's entry point
  */
 function Flutterer() {
-    // TODO: Implement this function, starting in Milestone 2
+    // TODO: Implement this function, starting in Milestone 2   
+    AsyncRequest("http://localhost:1066/api/floots")
+        .setSuccessHandler(initialize)
+        .send();
 
-    let req = AsyncRequest("GET http://localhost:1066/api/floots");
-    //req.addParams({json: true});
-    req.setSuccessHandler(
-        function(response) {
-            let payload = response.getPayload();
-            let info = JSON.parse(payload);
-            //console.log(info);
-        });
-    req.send();
+    function initialize(response) {
+        let payload = response.getPayload();
+        let info = JSON.parse(payload);
+        let actions = {
+            changeSelectedUser,
+            postNewFloot
+        };
+        document.body.appendChild(MainComponent(USERS[0], info, actions));
 
-    //console.log(info);
-    document.body.appendChild(MainComponent(USERS[0], [], {}));
-
-
+        function changeSelectedUser(username) {
+            // TODO: selected username color on sidebar is not showing as blue
+            while (document.body.lastChild != null) {
+                document.body.removeChild(document.body.lastChild)
+            }
+            document.body.appendChild(MainComponent(username, info, actions));
+        }
+    
+        function postNewFloot(username) {
+            while (document.body.lastChild != null) {
+                document.body.removeChild(document.body.lastChild)
+            }
+            // request
+            AsyncRequest("http://localhost:1066/api/floots")
+                .setMethod("POST")
+                .setSuccessHandler(function(response){
+                    console.log("POST worked!")
+                })
+            //document.body.appendChild(MainComponent(username, info, actions));
+        }
+    }
 }
 
 /**
@@ -88,12 +107,11 @@ function MainComponent(selectedUser, floots, actions) {
     let main_div = document.createElement("div");
     main_div.classList.add("primary-container");
 
+    console.log("floots when initializing MainComponent, ", floots);
     main_div.appendChild(Sidebar(USERS, floots, actions));
-
     main_div.appendChild(NewsFeed(selectedUser, floots, actions));
 
     return main_div;
-    
 }
 
 /**

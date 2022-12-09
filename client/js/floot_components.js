@@ -85,6 +85,7 @@ function NewFlootEntry(selectedUser, actions) {
     function postFloot() {
         // TODO: Milestone 5: Call one of your functions in `actions` to post
         // this floot.
+        actions.postNewFloot(selectedUser);
     }
 
     return container;
@@ -110,6 +111,8 @@ function NewFlootEntry(selectedUser, actions) {
  *   </div>
  */
 function FlootList(floots, selectedUser, actions) {
+    console.log("This is the floots whatever that means: ", floots);
+
     let container = document.createElement("div");
     container.classList.add("floot-list");
     for (let floot of floots) {
