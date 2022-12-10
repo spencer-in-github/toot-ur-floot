@@ -31,7 +31,24 @@ function Flutterer() {
         .setSuccessHandler(initialize)
         .send();
 
+<<<<<<< Updated upstream
     function initialize(response) {
+=======
+    let actions = {
+        changeSelectedUser: changeSelectedUser,
+        postNewFloot: postNewFloot,
+        deleteFloot: deleteFloot,
+        openFlootModal: openFlootModal,
+        closeFlootModal: closeFlootModal,
+        addComment: addComment,
+        deleteComment: deleteComment,
+        togglelikeFloot: togglelikeFloot
+    };
+
+    // A handler to create mainpage
+    // after GET /api/floots.
+    function showMainPageHandler(response) {
+>>>>>>> Stashed changes
         let payload = response.getPayload();
         let info = JSON.parse(payload);
         let actions = {
@@ -170,6 +187,26 @@ function Flutterer() {
                 .send();
         }
             
+    }
+
+    // An action function to like or unlike a floot.
+    function togglelikeFloot(flootId, selectedUser, isLiked){
+        while (document.body.lastChild != null) {
+            document.body.removeChild(document.body.lastChild);
+        }
+        let url;
+        if(!isLiked){
+            url = URL + "/" + flootId + "/like";
+        } else {
+            url = URL + "/" + flootId + "/unlike";
+        }
+        AsyncRequest(url)
+            .setMethod("POST")
+            .setPayload(JSON.stringify({
+                username: selectedUser,
+            }))
+            .setSuccessHandler(refresh) 
+            .send();
     }
 }
 
