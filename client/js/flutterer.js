@@ -31,9 +31,6 @@ function Flutterer() {
         .setSuccessHandler(initialize)
         .send();
 
-<<<<<<< Updated upstream
-    function initialize(response) {
-=======
     let actions = {
         changeSelectedUser: changeSelectedUser,
         postNewFloot: postNewFloot,
@@ -45,147 +42,156 @@ function Flutterer() {
         togglelikeFloot: togglelikeFloot
     };
 
-    // A handler to create mainpage
-    // after GET /api/floots.
-    function showMainPageHandler(response) {
->>>>>>> Stashed changes
+    function initialize(response) {
         let payload = response.getPayload();
         let info = JSON.parse(payload);
-        let actions = {
-            changeSelectedUser: changeSelectedUser,
-            postNewFloot: postNewFloot,
-            deleteFloot: deleteFloot,
-            openFlootModal: openFlootModal,
-            closeFlootModal: closeFlootModal,
-            addComment: addComment,
-            deleteComment: deleteComment,
-            togglelikeFloot: togglelikeFloot
-        };
         document.body.appendChild(MainComponent(current_user, info, actions));
+    }
 
-        function changeSelectedUser(username) {
-            // TODO: selected username color on sidebar is not showing as blue
-            while (document.body.lastChild != null) {
-                document.body.removeChild(document.body.lastChild)
-            }
-            current_user = username;
-            document.body.appendChild(MainComponent(username, info, actions));
+    function changeSelectedUser(username) {
+        // TODO: selected username color on sidebar is not showing as blue
+        while (document.body.lastChild != null) {
+            document.body.removeChild(document.body.lastChild)
         }
+        current_user = username;
+        refresh();
+    }
 
-        function refresh(){
-            AsyncRequest(URL)
-                .setSuccessHandler(initialize)
-                .send();
-        }
-    
-        function postNewFloot(username, message) {
-            while (document.body.lastChild != null) {
-                document.body.removeChild(document.body.lastChild)
-            }
-            // request
-            AsyncRequest(URL)
-                .setMethod("POST")
-                .setPayload(JSON.stringify({
-                    username: username,
-                    message: message
-                }))
-                .setSuccessHandler(refresh)
-                .send()
-        }
+    function refresh(){
+        AsyncRequest(URL)
+            .setSuccessHandler(initialize)
+            .send();
+    }
 
-        function deleteFloot(flootInfo){
-            while (document.body.lastChild != null) {
-                document.body.removeChild(document.body.lastChild)
-            }
-            // request
-            let url = URL + "/" + flootInfo.id + "/delete"
-            AsyncRequest(url)
-                .setMethod("POST")
-                .setPayload(JSON.stringify({
-                    username: flootInfo.username
-                }))
-                .setSuccessHandler(refresh)
-                .send();
+    function postNewFloot(username, message) {
+        while (document.body.lastChild != null) {
+            document.body.removeChild(document.body.lastChild)
         }
+        // request
+        AsyncRequest(URL)
+            .setMethod("POST")
+            .setPayload(JSON.stringify({
+                username: username,
+                message: message
+            }))
+            .setSuccessHandler(refresh)
+            .send()
+    }
 
-        function openFlootModal(flootInfo, selectedUser, actions){
-            let modal = FlootModal(flootInfo, selectedUser, actions);
-            while (document.body.lastChild != null) {
-                document.body.removeChild(document.body.lastChild)
-            }
-            AsyncRequest(URL)
-            .setSuccessHandler(addModal)
+    function deleteFloot(flootInfo){
+        while (document.body.lastChild != null) {
+            document.body.removeChild(document.body.lastChild)
+        }
+        // request
+        let url = URL + "/" + flootInfo.id + "/delete"
+        AsyncRequest(url)
+            .setMethod("POST")
+            .setPayload(JSON.stringify({
+                username: flootInfo.username
+            }))
+            .setSuccessHandler(refresh)
+            .send();
+    }
+
+    function openFlootModal(flootInfo, selectedUser, actions){
+        let modal = FlootModal(flootInfo, selectedUser, actions);
+        while (document.body.lastChild != null) {
+            document.body.removeChild(document.body.lastChild)
+        }
+        AsyncRequest(URL)
+        .setSuccessHandler(addModal)
+        .send();
+
+        function addModal(response){
+            let payload = response.getPayload();
+            let info = JSON.parse(payload);
+            document.body.appendChild(MainComponent(current_user, info, actions, modal));
+        }
+    }
+
+    function closeFlootModal(){
+        console.log("close modal executed");
+        while (document.body.lastChild != null) {
+            document.body.removeChild(document.body.lastChild)
+        }
+        refresh();
+    }
+
+    function addComment(flootInfo, comment){
+        while (document.body.lastChild != null) {
+            document.body.removeChild(document.body.lastChild)
+        }
+        // request
+        let url = URL + "/" + flootInfo.id + "/comments"
+        AsyncRequest(url)
+            .setMethod("POST")
+            .setPayload(JSON.stringify({
+                username: current_user,
+                message: comment
+            }))
+            .setSuccessHandler(stayOnTheModal) //TODO: should not close the modal when comment is submitted
             .send();
 
-            function addModal(response){
+        function stayOnTheModal(){
+            let url = URL + "/" + flootInfo.id 
+            AsyncRequest(url)
+                .setSuccessHandler(openTheModal) //TODO: should not close the modal when comment is submitted
+                .send();
+
+            function openTheModal(response){
                 let payload = response.getPayload();
-                let info = JSON.parse(payload);
-                document.body.appendChild(MainComponent(current_user, info, actions, modal));
+                let newFlootInfo = JSON.parse(payload);
+                openFlootModal(newFlootInfo, current_user, actions);
             }
         }
+    }
 
-        function closeFlootModal(){
-            console.log("close modal executed");
-            while (document.body.lastChild != null) {
-                document.body.removeChild(document.body.lastChild)
-            }
-            document.body.appendChild(MainComponent(current_user, info, actions));
+    function deleteComment(flootId, commentId){
+        while (document.body.lastChild != null) {
+            document.body.removeChild(document.body.lastChild)
         }
+        // request
+        let url = URL + "/" + flootId + "/comments/" + commentId + "/delete"
+        AsyncRequest(url)
+            .setMethod("POST")
+            .setPayload(JSON.stringify({
+                username: current_user,
+            }))
+            .setSuccessHandler(stayOnTheModal) //TODO: should not close the modal when comment is submitted
+            .send();
 
-        function addComment(flootInfo, comment){
-            while (document.body.lastChild != null) {
-                document.body.removeChild(document.body.lastChild)
-            }
-            // request
-            let url = URL + "/" + flootInfo.id + "/comments"
+        function stayOnTheModal(){
+            let url = URL + "/" + flootId 
             AsyncRequest(url)
-                .setMethod("POST")
-                .setPayload(JSON.stringify({
-                    username: flootInfo.username,
-                    message: comment
-                }))
-                .setSuccessHandler(refresh) //TODO: should not close the modal when comment is submitted
+                .setSuccessHandler(openTheModal) //TODO: should not close the modal when comment is submitted
                 .send();
 
-            // function stayOnTheModal(response){
-
-            //     openFlootModal(flootInfo, current_user, actions);
-            // }
-        }
-
-        function deleteComment(flootId, commentId){
-            while (document.body.lastChild != null) {
-                document.body.removeChild(document.body.lastChild)
+            function openTheModal(response){
+                let payload = response.getPayload();
+                let newFlootInfo = JSON.parse(payload);
+                openFlootModal(newFlootInfo, current_user, actions);
             }
-            // request
-            let url = URL + "/" + flootId + "/comments/" + commentId + "/delete"
-            AsyncRequest(url)
-                .setMethod("POST")
-                .setPayload(JSON.stringify({
-                    username: current_user,
-                }))
-                .setSuccessHandler(refresh) //TODO: should not close the modal when comment is submitted
-                .send();
         }
+    }
 
-        function togglelikeFloot(flootId, selectedUser, isLiked){
-            while (document.body.lastChild != null) {
-                document.body.removeChild(document.body.lastChild)
-            }
-            let url;
-            if(!isLiked){
-                url = URL + "/" + flootId + "/like"
-            } else {
-                url = URL + "/" + flootId + "/unlike"
-            }
-            AsyncRequest(url)
-                .setMethod("POST")
-                .setPayload(JSON.stringify({
-                    username: selectedUser,
-                }))
-                .setSuccessHandler(refresh) 
-                .send();
+    function togglelikeFloot(flootId, selectedUser, isLiked){
+        while (document.body.lastChild != null) {
+            document.body.removeChild(document.body.lastChild)
         }
+        let url;
+        if(!isLiked){
+            url = URL + "/" + flootId + "/like"
+        } else {
+            url = URL + "/" + flootId + "/unlike"
+        }
+        AsyncRequest(url)
+            .setMethod("POST")
+            .setPayload(JSON.stringify({
+                username: selectedUser,
+            }))
+            .setSuccessHandler(refresh) 
+            .send();
+    }
             
     }
 
@@ -208,7 +214,6 @@ function Flutterer() {
             .setSuccessHandler(refresh) 
             .send();
     }
-}
 
 /**
  * Component: MainComponent
