@@ -300,3 +300,12 @@ POST_ROUTES = [
     (("/api/floots/(.*)/like", "floot_id"), like_floot),
     (("/api/floots/(.*)/unlike", "floot_id"), unlike_floot)
 ]
+
+
+def get_likes(thermo):
+    """ds 
+
+    Args:
+        thermo (_type_): _description_
+    """
+    pass
